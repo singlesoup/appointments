@@ -1,12 +1,23 @@
 # appointments
 
-A new Flutter project.
+Added
 
-## Getting Started
+- Structured code
+- Clean UI
+- Search Suggestions
+- Suggestion tap not implemented yet
+- Status Tab selection
+- Code is setup to added filters (not plugged to UI yet)
+- Multiple extensions added for more functionalities
 
-This project is a starting point for a Flutter application.
+## Demo
 
-A few resources to get you started if this is your first Flutter project:
+
+https://github.com/user-attachments/assets/62eab193-56fe-4a9f-8cf2-227fe1ee2713
+
+
+
+
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
