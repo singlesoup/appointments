@@ -1,4 +1,14 @@
+import 'package:appointments/src/appoinments/data/appointments.dart';
+import 'package:appointments/src/appoinments/provider/approinments_provider.dart';
+import 'package:appointments/src/appoinments/widgets/appointment_filters.dart';
+import 'package:appointments/src/appoinments/widgets/search_bar.dart';
+import 'package:appointments/src/appoinments/widgets/status_tab_bar.dart';
+import 'package:appointments/src/theme/colors.dart';
+import 'package:appointments/src/theme/text_theme.dart';
+import 'package:appointments/src/utils/extentions/capitalize.dart';
+import 'package:appointments/src/utils/extentions/date_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -7,160 +17,61 @@ class AppointmentsScreen extends StatefulWidget {
   State<AppointmentsScreen> createState() => _AppointmentsScreenState();
 }
 
-class _AppointmentsScreenState extends State<AppointmentsScreen> {
+class _AppointmentsScreenState extends State<AppointmentsScreen>
+    with SingleTickerProviderStateMixin {
+  late ApproinmentsProvider approinmentsProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    approinmentsProvider = ApproinmentsProvider();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('All Appointments'),
-      ),
-      body: Column(
-        children: [
-          // // Search Bar
-          // Padding(
-          //   padding: const EdgeInsets.all(16.0),
-          //   child: TextField(
-          //     decoration: InputDecoration(
-          //       prefixIcon: const Icon(Icons.search),
-          //       hintText: 'Search by name, Id, birth date etc.',
-          //       border: OutlineInputBorder(
-          //         borderRadius: BorderRadius.circular(8),
-          //       ),
-          //       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-          //     ),
-          //   ),
-          // ),
-
-          // // Tab Bar
-          // const TabSelector(),
-
-          // // Appointment Counter and Filters
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          //   child: Row(
-          //     children: [
-          //       const Text(
-          //         '50 appointments',
-          //         style: TextStyle(
-          //           fontSize: 16,
-          //           fontWeight: FontWeight.w500,
-          //         ),
-          //       ),
-          //       const Spacer(),
-          //       IconButton(
-          //         icon: const Icon(Icons.calendar_today),
-          //         onPressed: () {},
-          //         style: IconButton.styleFrom(
-          //           backgroundColor: Colors.blue.withOpacity(0.1),
-          //         ),
-          //       ),
-          //       const SizedBox(width: 8),
-          //       TextButton.icon(
-          //         onPressed: () {},
-          //         icon: const Icon(Icons.filter_list),
-          //         label: const Text('Filters'),
-          //         style: TextButton.styleFrom(
-          //           backgroundColor: Colors.grey.withOpacity(0.1),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-
-          // // Appointments List
-          // Expanded(
-          //   child: ListView.builder(
-          //     padding: const EdgeInsets.all(16),
-          //     itemCount: 10,
-          //     itemBuilder: (context, index) {
-          //       final isFirstAppointment = index == 0;
-          //       return AppointmentCard(
-          //         showJoinCall: isFirstAppointment,
-          //         showCompleted: !isFirstAppointment,
-          //       );
-          //     },
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-}
-
-class TabSelector extends StatelessWidget {
-  const TabSelector({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.withOpacity(0.2),
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          _TabButton(
-            label: 'Upcoming',
-            isSelected: true,
-            onTap: () {},
-          ),
-          _TabButton(
-            label: 'Completed',
-            isSelected: false,
-            onTap: () {},
-          ),
-          _TabButton(
-            label: 'Cancelled',
-            isSelected: false,
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TabButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _TabButton({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isSelected ? Colors.blue : Colors.transparent,
-                width: 2,
-              ),
-            ),
-          ),
+        backgroundColor: bgColor,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 6),
           child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? Colors.blue : Colors.grey,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            'All Appointments',
+            style: hhTextTheme.headlineSmall!.copyWith(
+              fontWeight: FontWeight.normal,
             ),
           ),
+        ),
+      ),
+      body: Container(
+        color: bgColor,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        child: Column(
+          children: [
+            // Search Bar
+            const SearchAppointmentBar(),
+            // Tab Bar
+            const StatusTabBar(),
+
+            // Appointment Counter and Filters
+            const AppointmentFilters(),
+
+            // Appointments List
+            Expanded(
+              child: Consumer<ApproinmentsProvider>(
+                  builder: (context, provider, child) {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: provider.appoinmentsList.length,
+                  itemBuilder: (context, index) {
+                    var appointment = provider.appoinmentsList[index];
+                    return AppointmentCard(
+                      appointment: appointment,
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
@@ -168,75 +79,113 @@ class _TabButton extends StatelessWidget {
 }
 
 class AppointmentCard extends StatelessWidget {
-  final bool showJoinCall;
-  final bool showCompleted;
+  final Appointments appointment;
 
   const AppointmentCard({
     super.key,
-    this.showJoinCall = false,
-    this.showCompleted = false,
+    required this.appointment,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             CircleAvatar(
-              radius: 24,
-              backgroundColor: Colors.blue.withOpacity(0.1),
-              child: const Icon(Icons.person_outline, color: Colors.blue),
+              radius: 36,
+              backgroundColor: themeColor.withOpacity(0.1),
+              child: const Icon(
+                Icons.person_outline,
+                color: themeColor,
+                size: 48,
+              ),
             ),
-            const SizedBox(width: 16),
-            const Expanded(
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Patient name',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    appointment.name,
+                    style: hhTextTheme.bodyLarge,
                   ),
-                  SizedBox(height: 4),
-                  Row(
+                  const SizedBox(height: 4),
+                  Column(
                     children: [
-                      Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text(
-                        'Today',
-                        style: TextStyle(color: Colors.grey),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            DateTimeFormatter.formatAppointmentDate(
+                                appointment.time),
+                            style: hhTextTheme.titleSmall!.copyWith(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 16),
-                      Icon(Icons.access_time, size: 14, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text(
-                        'In 2 mins',
-                        style: TextStyle(color: Colors.grey),
+                      const SizedBox(width: 16),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            DateTimeFormatter.getRelativeTime(appointment.time),
+                            style: hhTextTheme.titleSmall!.copyWith(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            if (showJoinCall)
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.video_call),
-                label: const Text('Join call'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+            if (appointment.isWithinTwoHours)
+              SizedBox(
+                height: 32,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.call_outlined,
+                    size: 14,
+                  ),
+                  label: Text(
+                    'Join call',
+                    style: hhTextTheme.titleSmall!.copyWith(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    backgroundColor: themeColor,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               )
-            else if (showCompleted)
-              const Text(
-                'Completed',
-                style: TextStyle(color: Colors.blue),
+            else
+              Text(
+                appointment.status.name.capitalize(),
+                style: hhTextTheme.bodyMedium!.copyWith(
+                  color: themeColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
           ],
         ),

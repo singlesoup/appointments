@@ -21,26 +21,20 @@ class HomeScreenState extends State<HomeScreen> {
     const ComingSoonScreen(title: 'Profile'),
   ];
 
-  void _onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
-      ), // Show the selected screen
+      ),
       bottomNavigationBar: Container(
         height: 80,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(
             top: BorderSide(
-              color: Colors.grey.withOpacity(0.2),
+              color: borderColor,
             ),
           ),
         ),
@@ -71,7 +65,7 @@ class HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected ? accent : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),

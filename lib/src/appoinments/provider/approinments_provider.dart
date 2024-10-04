@@ -1,14 +1,18 @@
 import 'package:appointments/src/appoinments/data/appointments.dart';
-import 'package:flutter/widgets.dart' show ChangeNotifier;
+import 'package:flutter/widgets.dart'
+    show ChangeNotifier, TextEditingController;
 
 class ApproinmentsProvider extends ChangeNotifier {
-  final List<Appointments> _appointmentsList = [];
+  List<Appointments> _appointmentsList = [];
   List<Appointments> get appoinmentsList => _appointmentsList;
+
+  AppointmentType _currentTab = AppointmentType.upcoming;
+  AppointmentType get currentTab => _currentTab;
 
   final List<Appointments> _dummyAppointments = [
     Appointments(
       id: 'HH-1',
-      name: 'General Check-up with Dr. Smith',
+      name: 'Smith',
       time: DateTime.now().add(const Duration(hours: 1)), // Upcoming
       type: 'General',
       status: AppointmentType.upcoming,
@@ -17,81 +21,81 @@ class ApproinmentsProvider extends ChangeNotifier {
     ),
     Appointments(
       id: 'HH-2',
-      name: 'Dentist Appointment with Dr. Adams',
+      name: 'Adams',
       time: DateTime.now().add(const Duration(days: 3)), // Upcoming
-      type: 'Dental',
+      type: 'General',
       status: AppointmentType.upcoming,
       duration: AppointmentDuration.medium,
       mode: AppointmentMode.inperson,
     ),
     Appointments(
       id: 'HH-3',
-      name: 'Eye Check-up with Dr. Patel',
+      name: 'Patel',
       time: DateTime.now().subtract(const Duration(days: 2)), // Completed
-      type: 'Optometry',
+      type: 'General',
       status: AppointmentType.completed,
       duration: AppointmentDuration.short,
       mode: AppointmentMode.inperson,
     ),
     Appointments(
       id: 'HH-4',
-      name: 'Orthopedic Consultation with Dr. Lee',
+      name: 'Lee',
       time: DateTime.now().subtract(const Duration(days: 1)), // Cancelled
-      type: 'Orthopedic',
+      type: 'General',
       status: AppointmentType.cancelled,
       duration: AppointmentDuration.medium,
       mode: AppointmentMode.inperson,
     ),
     Appointments(
       id: 'HH-5',
-      name: 'Cardiology Follow-up with Dr. Johnson',
+      name: 'Johnson',
       time: DateTime.now().add(const Duration(hours: 5)), // Upcoming
-      type: 'Cardiology',
+      type: 'General',
       status: AppointmentType.upcoming,
       duration: AppointmentDuration.long,
       mode: AppointmentMode.inperson,
     ),
     Appointments(
       id: 'HH-6',
-      name: 'Dermatology Consultation with Dr. Brown',
+      name: 'Brown',
       time: DateTime.now().subtract(const Duration(days: 4)), // Completed
-      type: 'Dermatology',
+      type: 'General',
       status: AppointmentType.completed,
       duration: AppointmentDuration.short,
       mode: AppointmentMode.virtual,
     ),
     Appointments(
       id: 'HH-7',
-      name: 'Pediatric Visit with Dr. Miller',
+      name: 'Miller',
       time: DateTime.now().add(const Duration(minutes: 90)), // Within 2 hours
-      type: 'Pediatrics',
+      type: 'General',
       status: AppointmentType.upcoming,
       duration: AppointmentDuration.long,
       mode: AppointmentMode.virtual,
     ),
     Appointments(
       id: 'HH-8',
-      name: 'ENT Consultation with Dr. Wilson',
+      name: 'Wilson',
       time: DateTime.now().add(const Duration(days: 7)), // Upcoming
-      type: 'ENT',
+      type: 'General',
       status: AppointmentType.upcoming,
       duration: AppointmentDuration.long,
       mode: AppointmentMode.inperson,
     ),
     Appointments(
       id: 'HH-9',
-      name: 'Neurology Check-up with Dr. Garcia',
+      name: 'Garcia',
       time: DateTime.now().subtract(const Duration(days: 10)), // Completed
-      type: 'Neurology',
+      type: 'General',
       status: AppointmentType.completed,
       duration: AppointmentDuration.long,
       mode: AppointmentMode.inperson,
     ),
     Appointments(
       id: 'HH-10',
-      name: 'Gastroenterology Consultation with Dr. Martinez',
+      name: 'Martinez',
       time: DateTime.now().subtract(const Duration(days: 3)), // Cancelled
-      type: 'Gastroenterology',
+      type: 'General',
       status: AppointmentType.cancelled,
       duration: AppointmentDuration.medium,
       mode: AppointmentMode.inperson,
@@ -99,12 +103,24 @@ class ApproinmentsProvider extends ChangeNotifier {
   ];
 
   //### Initialize appointments
-  Future getAppointments() async {
-    await Future.delayed(const Duration(milliseconds: 900), () {
-      _appointmentsList.addAll(_dummyAppointments);
-    });
-
+  getAppointments() {
+    _appointmentsList.addAll(_dummyAppointments);
     _filteredAppointments = _appointmentsList;
+    notifyListeners();
+  }
+
+  ApproinmentsProvider() {
+    setTab(currentTab);
+  }
+
+  //### tab selection
+  void setTab(AppointmentType status) {
+    _appointmentsList.clear();
+    searchController.clear();
+    getAppointments();
+    _currentTab = status;
+    filterByStatus(status);
+    _appointmentsList = _filteredAppointments;
     notifyListeners();
   }
 
@@ -129,6 +145,8 @@ class ApproinmentsProvider extends ChangeNotifier {
     // Notify listeners so the UI can update
     notifyListeners();
   }
+
+  final TextEditingController searchController = TextEditingController();
 
   //### For Filters
   List<Appointments> _filteredAppointments = [];
