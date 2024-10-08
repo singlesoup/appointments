@@ -1,5 +1,6 @@
 import 'package:appointments/src/appoinments/provider/approinments_provider.dart';
 import 'package:appointments/src/home/screens/homescreen.dart';
+import 'package:appointments/src/theme/colors.dart';
 
 import 'package:appointments/src/theme/text_theme.dart';
 import 'package:flutter/material.dart' show Brightness, MaterialApp, ThemeData;
@@ -25,6 +26,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Appointments',
         theme: ThemeData(
+          primaryColor: themeColor,
+          scaffoldBackgroundColor: bgColor,
           textTheme: hhTextTheme,
           brightness: Brightness.light,
           useMaterial3: true,

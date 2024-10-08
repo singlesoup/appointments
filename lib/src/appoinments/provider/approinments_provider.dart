@@ -132,14 +132,16 @@ class ApproinmentsProvider extends ChangeNotifier {
   void searchAppointments(String query) {
     // If the query is empty, show all appointments
     if (query.isEmpty) {
-      _searchResults = _appointmentsList;
+      _appointmentsList.clear();
+      _appointmentsList = _searchResults;
     } else {
       // Filter appointments based on the name or type
-      _searchResults = _appointmentsList.where((appointment) {
+      _searchResults = _dummyAppointments.where((appointment) {
         return appointment.name.toLowerCase().contains(query.toLowerCase()) ||
             appointment.type.toLowerCase().contains(query.toLowerCase()) ||
             appointment.id.contains(query);
       }).toList();
+      _appointmentsList = _searchResults;
     }
 
     // Notify listeners so the UI can update
