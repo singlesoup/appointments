@@ -1,3 +1,4 @@
+import 'package:appointments/src/appoinments/data/appointment_filters.dart';
 import 'package:appointments/src/appoinments/data/appointments.dart';
 import 'package:appointments/src/appoinments/data/dummy_appointments.dart';
 import 'package:flutter/widgets.dart'
@@ -29,16 +30,16 @@ class ApproinmentsProvider extends ChangeNotifier {
 
   // Tab selection
   void setTab(AppointmentType status) {
-    _currentTab = status;
-
     String currSearch = searchController.text;
-
+    _currentTab = status;
     if (currSearch.isEmpty) {
       filterByStatus(status);
     } else {
       searchAppointments(currSearch, status);
     }
-    notifyListeners();
+    if (_activeFilters.isActive) {
+      clearAllFilters();
+    }
   }
 
   // Search appointments with status filter
@@ -71,77 +72,98 @@ class ApproinmentsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Filter by Type
-  void filterByType(String type) {
-    _appointmentsList = _allAppointments.where((appointment) {
-      return appointment.type.toLowerCase() == type.toLowerCase();
-    }).toList();
-    notifyListeners();
-  }
+  // Track active filters
+  final AppointmentFilters _activeFilters = AppointmentFilters();
+  AppointmentFilters get activeFilters => _activeFilters;
 
-  // Filter by Mode
-  void filterByMode(AppointmentMode mode) {
-    _appointmentsList = _allAppointments.where((appointment) {
-      return appointment.mode == mode;
-    }).toList();
-    notifyListeners();
-  }
+// Getter to check if any filters are active
+  bool get hasActiveFilters => _activeFilters.isActive;
 
-  // Filter by Duration
-  void filterByDuration(AppointmentDuration duration) {
-    _appointmentsList = _allAppointments.where((appointment) {
-      return appointment.duration == duration;
-    }).toList();
-    notifyListeners();
-  }
-
-  // Filter by Date Range
-  void filterByDateRange(DateTime startDate, DateTime endDate) {
-    _appointmentsList = _allAppointments.where((appointment) {
-      return appointment.time.isAfter(startDate) &&
-          appointment.time.isBefore(endDate);
-    }).toList();
-    notifyListeners();
-  }
-
-  // // Filter by Time of Day
-  // void filterByTimeOfDay(TimeOfDay startTime, TimeOfDay endTime) {
-  //   _appointmentsList = _appointmentsList.where((appointment) {
-  //     final appointmentTime = TimeOfDay.fromDateTime(appointment.time);
-  //     return (appointmentTime.hour >= startTime.hour &&
-  //         appointmentTime.hour <= endTime.hour);
-  //   }).toList();
-  //   notifyListeners();
-  // }
-
-  // Apply multiple filters (Status, Type, Mode, Duration, etc.)
-  void applyFilters({
-    AppointmentType? status,
-    String? type,
+  // Apply a single filter
+  void applySingleFilter({
     AppointmentMode? mode,
     AppointmentDuration? duration,
+    String? type,
     DateTime? startDate,
     DateTime? endDate,
   }) {
-    _appointmentsList = _allAppointments.where((appointment) {
-      bool matchesStatus = status == null || appointment.status == status;
-      bool matchesType =
-          type == null || appointment.type.toLowerCase() == type.toLowerCase();
-      bool matchesMode = mode == null || appointment.mode == mode;
-      bool matchesDuration =
-          duration == null || appointment.duration == duration;
-      bool matchesDateRange = startDate == null ||
-          endDate == null ||
-          (appointment.time.isAfter(startDate) &&
-              appointment.time.isBefore(endDate));
+    if (mode != null) _activeFilters.mode = mode;
+    if (duration != null) _activeFilters.duration = duration;
+    if (type != null) _activeFilters.type = type;
+    if (startDate != null) _activeFilters.startDate = startDate;
+    if (endDate != null) _activeFilters.endDate = endDate;
 
-      return matchesStatus &&
-          matchesType &&
-          matchesMode &&
-          matchesDuration &&
-          matchesDateRange;
-    }).toList();
-
+    _applyActiveFilters();
     notifyListeners();
+  }
+
+  // Remove a single filter
+  void removeSingleFilter(String filterType) {
+    switch (filterType) {
+      case 'mode':
+        _activeFilters.mode = null;
+        break;
+      case 'duration':
+        _activeFilters.duration = null;
+        break;
+      case 'type':
+        _activeFilters.type = null;
+        break;
+      case 'dateRange':
+        _activeFilters.startDate = null;
+        _activeFilters.endDate = null;
+        break;
+    }
+
+    _applyActiveFilters();
+    notifyListeners();
+  }
+
+  // Internal method to apply all active filters
+  void _applyActiveFilters() {
+    filterByStatus(_currentTab);
+    List<Appointments> filtered = _appointmentsList;
+
+    if (_activeFilters.mode != null) {
+      filtered = filtered
+          .where((appointment) => appointment.mode == _activeFilters.mode)
+          .toList();
+    }
+
+    if (_activeFilters.duration != null) {
+      filtered = filtered
+          .where(
+              (appointment) => appointment.duration == _activeFilters.duration)
+          .toList();
+    }
+
+    if (_activeFilters.type != null) {
+      filtered = filtered
+          .where((appointment) =>
+              appointment.type.toLowerCase() ==
+              _activeFilters.type!.toLowerCase())
+          .toList();
+    }
+
+    if (_activeFilters.startDate != null && _activeFilters.endDate != null) {
+      filtered = filtered.where((appointment) {
+        return appointment.time.isAfter(
+                _activeFilters.startDate!.subtract(const Duration(days: 1))) &&
+            appointment.time
+                .isBefore(_activeFilters.endDate!.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    if (_activeFilters.isActive) {
+      _appointmentsList = filtered;
+    } else {
+      filterByStatus(_currentTab);
+    }
+  }
+
+  // Clear all filters
+  void clearAllFilters() {
+    _activeFilters.reset();
+    filterByStatus(_currentTab);
   }
 }
