@@ -4,7 +4,8 @@ Added
 
 - Structured code
 - Clean UI
-- Search Suggestions
+- Search
+- Filters
 - Suggestion tap not implemented yet
 - Status Tab selection
 - Code is setup to added filters (not plugged to UI yet)
