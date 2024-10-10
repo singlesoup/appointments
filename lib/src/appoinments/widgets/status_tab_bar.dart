@@ -8,7 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 class StatusTabBar extends StatelessWidget {
-  const StatusTabBar({super.key});
+  final Function(int) onTabSelected;
+  const StatusTabBar({super.key, required this.onTabSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class StatusTabBar extends StatelessWidget {
             onTap: () {
               var approinmentsProvider = context.read<ApproinmentsProvider>();
               approinmentsProvider.setTab(AppointmentType.upcoming);
+              onTabSelected(0);
             },
           ),
           _TabButton(
@@ -35,6 +37,7 @@ class StatusTabBar extends StatelessWidget {
             onTap: () {
               var approinmentsProvider = context.read<ApproinmentsProvider>();
               approinmentsProvider.setTab(AppointmentType.completed);
+              onTabSelected(1);
             },
           ),
           _TabButton(
@@ -42,6 +45,7 @@ class StatusTabBar extends StatelessWidget {
             onTap: () {
               var approinmentsProvider = context.read<ApproinmentsProvider>();
               approinmentsProvider.setTab(AppointmentType.cancelled);
+              onTabSelected(2);
             },
           ),
         ],
