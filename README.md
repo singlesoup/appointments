@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/62eab193-56fe-4a9f-8cf2-227fe1ee2713
 
 - [x] Implement the screen using Flutter widgets and layouts.
 - [x] Implement functional search with suggestions.
-- [ ] Implement a swipeable tab bar with three tabs: 
+- [X] Implement a swipeable tab bar with three tabs: 
     - Upcoming
     - Completed
     - Cancelled appointments
@@ -31,12 +31,12 @@ https://github.com/user-attachments/assets/62eab193-56fe-4a9f-8cf2-227fe1ee2713
 - [x] Use the Provider package for state management:
     - [x] Create a model class for an appointment with properties like name, time, type, status, etc.
     - [x] Implement a Provider to hold the list of appointments.
-    - [ ] Ensure that the search bar and filters interact correctly with the appointment list to display the right results.
+    - [X] Ensure that the search bar and filters interact correctly with the appointment list to display the right results.
 
 ## Bonus:
 
 - [x] Implement dummy navigation items in the bottom bar and make the "Appointments" tab functional.
-- [ ] Add basic animations to transitions between tabs.
+- [X] Add basic animations to transitions between tabs.
 - [ ] Use geolocation to allow location-based filtering if applicable.
 
 
